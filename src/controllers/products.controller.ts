@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import productsService from '../services/products.service';
-// import mapStatusHTTP from '../utils/mapStatusHTTP';
+import mapStatusHTTP from '../utils/mapStatusHTTP';
 
 async function list(_req: Request, res: Response) {
   const serviceResponse = await productsService.list();
@@ -10,9 +10,12 @@ async function list(_req: Request, res: Response) {
 
 async function create(req: Request, res: Response) {
   const { name, price, orderId } = req.body;
-  const serviceResponse = await productsService.create({ name, price, orderId });
-
-  res.status(201).json(serviceResponse.data);
+  const { status, data } = await productsService.create({ name, price, orderId });
+  
+  if (status !== 'SUCCESSFUL') {
+    return res.status(mapStatusHTTP(status)).json(data);
+  }
+  res.status(201).json(data);
 }
 
 export default {
